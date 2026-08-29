@@ -30,6 +30,23 @@ Features:
 - Normalization check
 - Expectation values ⟨x⟩ and ⟨p⟩
 
+### Module 3 — Quantum Wave Packet
+
+An interactive visualization of a free-particle Gaussian wave packet and its
+time evolution.
+
+Features:
+- Adjustable initial position
+- Adjustable momentum
+- Adjustable packet width
+- Real and imaginary components of the wavefunction
+- Probability density |Ψ(x,t)|²
+- Play, pause and reset controls
+- Expectation values <x> and <p>
+- Position and momentum uncertainties Δx and Δp
+- Uncertainty principle verification
+- Uncertainty evolution over time
+
 ## 🛠️ Technologies
 
 - Python
