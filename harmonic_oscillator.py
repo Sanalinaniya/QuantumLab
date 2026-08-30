@@ -158,37 +158,43 @@ class HarmonicOscillatorView(QWidget):
         root.setContentsMargins(12, 12, 12, 12)
 
         self.setStyleSheet("""
+            QWidget {
+                background-color: #080b11;
+                color: #e7edf5;
+            }
             QGroupBox {
-                border: 1px solid #e2e8f0;
+                border: 1px solid #1e2a3a;
                 border-radius: 10px;
                 margin-top: 12px;
                 padding: 10px 8px 8px 8px;
-                background-color: #fefefe;
+                background-color: #0b1119;
                 font-weight: 600;
-                color: #334155;
+                color: #e7edf5;
+                font-size: 15px;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 12px;
                 padding: 0 6px;
-                color: #7c3aed;
+                color: #5fd98a;
+                font-size: 16px;
             }
             QSlider::groove:horizontal {
                 height: 6px;
-                background: #e2e8f0;
+                background: #1e2a3a;
                 border-radius: 3px;
             }
             QSlider::handle:horizontal {
                 background: qradialgradient(cx:0.4, cy:0.4, radius:0.8,
-                            fx:0.4, fy:0.4, stop:0 #a78bfa, stop:1 #7c3aed);
+                            fx:0.4, fy:0.4, stop:0 #f5b642, stop:1 #f59e0b);
                 width: 16px;
                 height: 16px;
                 margin: -6px 0;
                 border-radius: 8px;
-                border: 1px solid #6d28d9;
+                border: 1px solid #f5b642;
             }
             QSlider::sub-page:horizontal {
-                background: #c4b5fd;
+                background: #5fd98a;
                 border-radius: 3px;
             }
             QCheckBox::indicator, QRadioButton::indicator {
@@ -196,17 +202,18 @@ class HarmonicOscillatorView(QWidget):
                 height: 14px;
             }
             QCheckBox::indicator:checked {
-                background-color: #10b981;
-                border: 1px solid #059669;
+                background-color: #5fd98a;
+                border: 1px solid #5fd98a;
                 border-radius: 3px;
             }
             QRadioButton::indicator:checked {
-                background-color: #7c3aed;
-                border: 1px solid #6d28d9;
+                background-color: #5fd98a;
+                border: 1px solid #5fd98a;
                 border-radius: 7px;
             }
             QLabel {
-                color: #334155;
+                color: #e7edf5;
+                font-size: 14px;
             }
         """)
 

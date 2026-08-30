@@ -80,6 +80,51 @@ L_DEFAULT_TENTHS = 10
 class QuantumVisualizer(QWidget):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #080b11;
+                color: #e7edf5;
+            }
+            QGroupBox {
+                border: 1px solid #1e2a3a;
+                border-radius: 10px;
+                margin-top: 12px;
+                padding: 8px;
+                background-color: #0b1119;
+                color: #e7edf5;
+                font-weight: 600;
+                font-size: 15px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 6px;
+                color: #5fd98a;
+                font-size: 16px;
+            }
+            QSlider::groove:horizontal {
+                height: 6px; background: #1e2a3a; border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                background: qradialgradient(cx:0.4, cy:0.4, radius:0.8,
+                            fx:0.4, fy:0.4, stop:0 #f5b642, stop:1 #f59e0b);
+                width: 16px; height: 16px; margin: -6px 0;
+                border-radius: 8px; border: 1px solid #f5b642;
+            }
+            QSlider::sub-page:horizontal { background: #5fd98a; border-radius: 3px; }
+            QLabel { color: #e7edf5; font-size: 14px; }
+            QCheckBox::indicator { width: 14px; height: 14px; }
+            QCheckBox::indicator:checked {
+                background-color: #5fd98a; border: 1px solid #5fd98a; border-radius: 3px;
+            }
+            QPushButton {
+                font-weight: 700; font-size: 14px;
+                padding: 6px 14px; border-radius: 8px;
+                border: 1px solid #5fd98a; color: #e7edf5; background: #0b1119;
+            }
+            QPushButton:hover { background: #1a2230; }
+            QPushButton:pressed { background: #0f172a; }
+        """)
         self.single_n = 1
         self.compare_n_values = {1, 2}
         self.L = L_DEFAULT_TENTHS / 10

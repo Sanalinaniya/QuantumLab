@@ -135,47 +135,47 @@ class WavePacketView(QWidget):
 
     def _stylesheet(self):
         return """
-            QWidget { font-size: 13px; }
+            QWidget { font-size: 15px; background-color: #080b11; color: #e7edf5; }
             QGroupBox {
-                border: 1px solid #e2e8f0;
+                border: 1px solid #1e2a3a;
                 border-radius: 10px;
                 margin-top: 14px;
                 padding: 12px 10px 10px 10px;
-                background-color: #fefefe;
+                background-color: #0b1119;
                 font-weight: 700;
-                font-size: 13px;
-                color: #334155;
+                font-size: 15px;
+                color: #e7edf5;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 12px;
                 padding: 0 6px;
-                color: #7c3aed;
-                font-size: 14px;
+                color: #5fd98a;
+                font-size: 16px;
             }
-            QLabel { color: #334155; font-weight: 600; }
+            QLabel { color: #e7edf5; font-weight: 600; font-size: 14px; }
             QSlider::groove:horizontal {
-                height: 7px; background: #e2e8f0; border-radius: 3px;
+                height: 7px; background: #1e2a3a; border-radius: 3px;
             }
             QSlider::handle:horizontal {
                 background: qradialgradient(cx:0.4, cy:0.4, radius:0.8,
-                            fx:0.4, fy:0.4, stop:0 #a78bfa, stop:1 #7c3aed);
+                            fx:0.4, fy:0.4, stop:0 #f5b642, stop:1 #f59e0b);
                 width: 18px; height: 18px; margin: -6px 0;
-                border-radius: 9px; border: 1px solid #6d28d9;
+                border-radius: 9px; border: 1px solid #f5b642;
             }
-            QSlider::sub-page:horizontal { background: #c4b5fd; border-radius: 3px; }
+            QSlider::sub-page:horizontal { background: #5fd98a; border-radius: 3px; }
             QCheckBox { font-weight: 600; }
             QCheckBox::indicator { width: 15px; height: 15px; }
             QCheckBox::indicator:checked {
-                background-color: #10b981; border: 1px solid #059669; border-radius: 3px;
+                background-color: #5fd98a; border: 1px solid #5fd98a; border-radius: 3px;
             }
             QPushButton {
-                font-weight: 700; font-size: 14px;
+                font-weight: 700; font-size: 15px;
                 padding: 6px 18px; border-radius: 8px;
-                border: 1px solid #7c3aed; color: #7c3aed; background: #f5f3ff;
+                border: 1px solid #5fd98a; color: #e7edf5; background: #0b1119;
             }
-            QPushButton:hover { background: #ede9fe; }
-            QPushButton:pressed { background: #ddd6fe; }
+            QPushButton:hover { background: #1a2230; }
+            QPushButton:pressed { background: #0f172a; }
         """
 
     def _build_title(self):
@@ -184,7 +184,7 @@ class WavePacketView(QWidget):
         font.setPointSize(17)
         font.setBold(True)
         label.setFont(font)
-        label.setStyleSheet("color: #6d28d9;")
+        label.setStyleSheet("color: #b591f0;")
         return label
 
     def _build_controls(self):
@@ -532,5 +532,14 @@ def main():
     sys.exit(app.exec_())
 
 
+
+
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
