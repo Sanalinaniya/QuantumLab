@@ -24,7 +24,8 @@ import sys
 
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QStackedWidget, QFrame,
+    QGridLayout, QLabel, QPushButton, QStackedWidget, QFrame, QMessageBox,
+    QSizePolicy, QScrollArea,
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QPainter, QPen, QColor, QBrush, QPainterPath
@@ -42,16 +43,22 @@ def _wrap_module_screen(title, body_widget, on_back):
     layout.setSpacing(12)
 
     top_row = QHBoxLayout()
-    back_btn = QPushButton("← Back to QuantumLab")
-    back_btn.setObjectName("backButton")
+    back_btn = QPushButton("← QuantumLab")
+    back_btn.setObjectName("navButton")
     back_btn.clicked.connect(on_back)
     top_row.addWidget(back_btn)
-    top_row.addStretch()
-    layout.addLayout(top_row)
 
     label = QLabel(title)
-    label.setStyleSheet("font-size: 24px; font-weight: 700; color: #1e293b;")
-    layout.addWidget(label)
+    label.setObjectName("moduleTitle")
+    label.setAlignment(Qt.AlignCenter)
+    top_row.addWidget(label, stretch=1)
+
+    home_btn = QPushButton("🏠 Home")
+    home_btn.setObjectName("navButton")
+    home_btn.clicked.connect(on_back)
+    top_row.addWidget(home_btn)
+
+    layout.addLayout(top_row)
 
     body_widget.setParent(container)
     layout.addWidget(body_widget)
@@ -116,20 +123,26 @@ MODULES = [
 
 def _shell_stylesheet():
     return f"""
-        QWidget {{ font-size: 15px; background-color: #080b11; color: #e7edf5; }}
-        QLabel {{ color: #e7edf5; font-size: 15px; }}
+        QWidget {{ font-size: 15px; background-color: #080b11; color: #eef4ff; }}
+        QLabel {{ color: #edf4ff; font-size: 15px; }}
+        QLabel#moduleTitle {{
+            font-size: 22px; font-weight: 800; color: #f8fbff; letter-spacing: 0.02em;
+        }}
         QPushButton {{
             font-weight: 700; font-size: 15px; padding: 8px 20px; border-radius: 10px;
-            border: 1px solid {ACCENT}; color: #e7edf5; background: #0b1119;
+            border: 1px solid {ACCENT}; color: #edf4ff; background: #0b1119;
         }}
         QPushButton:hover {{ background: #15232a; }}
         QPushButton:pressed {{ background: #111827; }}
-        QPushButton#backButton {{ font-size: 13px; padding: 6px 14px; font-weight: 600; }}
+        QPushButton#navButton {{
+            font-size: 13px; padding: 7px 14px; font-weight: 700; min-width: 110px;
+        }}
         QPushButton#cardExplore {{
             font-size: 14px; padding: 9px 0px; border-radius: 9px;
-            border: none; color: #080b11; background: {ACCENT_ALT};
+            border: none; color: #ffffff; background: #f5b642; font-weight: 800;
         }}
-        QPushButton#cardExplore:hover {{ background: #ffd07d; }}
+        QPushButton#cardExplore:hover {{ background: #f0a324; border: none; color: #ffffff; }}
+        QPushButton#cardExplore:pressed {{ background: #dc8c00; border: none; color: #ffffff; }}
         QFrame#card {{
             background: #0b1119; border: 1px solid #1e2a3a; border-radius: 16px;
         }}
@@ -142,7 +155,8 @@ class ModuleCard(QFrame):
     def __init__(self, module_info, on_open):
         super().__init__()
         self.setObjectName("card")
-        self.setFixedSize(300, 210)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setMinimumHeight(220)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 18, 20, 18)
@@ -171,12 +185,61 @@ class ModuleCard(QFrame):
 
         explore_btn = QPushButton("EXPLORE")
         explore_btn.setObjectName("cardExplore")
+        explore_btn.setMinimumHeight(36)
+        explore_btn.setStyleSheet(
+    "background: #f5b642; border: none; color: black; font-weight: 800;"
+)
+        explore_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         explore_btn.clicked.connect(lambda: on_open(module_info))
 
         layout.addWidget(icon_label)
         layout.addWidget(title_label)
         layout.addWidget(blurb_label, stretch=1)
         layout.addWidget(explore_btn)
+
+
+class ChallengeCard(QFrame):
+    def __init__(self, title, prompt, accent):
+        super().__init__()
+        self.setObjectName("card")
+        self.setMinimumHeight(180)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.title = title
+        self.prompt = prompt
+        self.accent = accent
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 14, 18, 14)
+        layout.setSpacing(8)
+
+        badge = QLabel(title)
+        badge_font = QFont()
+        badge_font.setPointSize(12)
+        badge_font.setBold(True)
+        badge.setFont(badge_font)
+        badge.setStyleSheet(f"color: {self.accent};")
+
+        text = QLabel(prompt)
+        text.setWordWrap(True)
+        text.setStyleSheet("color: #dfe7f3; font-size: 13px; font-weight: 500;")
+
+        hint = QPushButton("Try challenge")
+        hint.setObjectName("cardExplore")
+        hint.setMinimumHeight(36)
+        hint.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        hint.clicked.connect(self._show_hint)
+
+        layout.addWidget(badge)
+        layout.addWidget(text, stretch=1)
+        layout.addWidget(hint)
+
+    def _show_hint(self):
+        message = {
+            "🔬 Experiment": "Try adjusting the box length and watch how the standing-wave nodes change as you move between states.",
+            "🎯 Challenge": "A good target is to tune the state so the pattern has five visible antinodes before checking the labels.",
+            "🧠 What am I seeing?": "The graph shows a stationary quantum state: the probability density is the key observable, while the wavefunction itself carries phase information.",
+        }.get(self.title, self.prompt)
+        QMessageBox.information(None, self.title, message)
 
 
 class QuantumBackground(QWidget):
@@ -267,14 +330,29 @@ class HomeScreen(QWidget):
         self.background.lower()
         self.background.resize(self.size())
 
-        layout = QVBoxLayout(self)
+        self.scroll = QScrollArea(self)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scroll.setStyleSheet("QScrollArea { background: transparent; border: none; } QScrollArea > QWidget { background: transparent; }")
+        self.scroll.viewport().setAutoFillBackground(False)
+        self.scroll.viewport().setStyleSheet("background: transparent;")
+
+        content = QWidget()
+        content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        content.setStyleSheet("background: transparent;")
+        content.setAttribute(Qt.WA_StyledBackground, False)
+        self.content = content
+
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(30, 28, 30, 30)
         layout.setSpacing(12)
         layout.setAlignment(Qt.AlignTop)
 
         title = QLabel("⚛  QUANTUMLAB")
         title_font = QFont()
-        title_font.setPointSize(42)
+        title_font.setPointSize(32)
         title_font.setBold(True)
         title.setFont(title_font)
         title.setStyleSheet(f"color: {ACCENT};")
@@ -294,31 +372,67 @@ class HomeScreen(QWidget):
         layout.addWidget(title)
         layout.addWidget(subtitle)
         layout.addWidget(tagline)
+        layout.addSpacing(24)
 
         grid = QGridLayout()
         grid.setSpacing(22)
         grid.setAlignment(Qt.AlignCenter)
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
         for i, module_info in enumerate(MODULES):
             card = ModuleCard(module_info, on_open_module)
             grid.addWidget(card, i // 2, i % 2)
 
         grid_wrap = QWidget()
         grid_wrap.setLayout(grid)
+        grid_wrap.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         grid_row = QHBoxLayout()
         grid_row.addStretch()
-        grid_row.addWidget(grid_wrap)
+        grid_row.addWidget(grid_wrap, stretch=1)
         grid_row.addStretch()
         layout.addLayout(grid_row)
 
-        layout.addStretch()
+        challenge_title = QLabel("Experiment mode")
+        challenge_title_font = QFont()
+        challenge_title_font.setPointSize(18)
+        challenge_title_font.setBold(True)
+        challenge_title.setFont(challenge_title_font)
+        challenge_title.setStyleSheet(f"color: {ACCENT_ALT}; font-weight: 800;")
+        challenge_title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(challenge_title)
+
+        challenge_cards = QGridLayout()
+        challenge_cards.setSpacing(18)
+        challenge_cards.setAlignment(Qt.AlignCenter)
+
+        challenge_cards.addWidget(ChallengeCard("🔬 Experiment", "Can you make the particle’s probability density develop 3 nodes?", ACCENT), 0, 0)
+        challenge_cards.addWidget(ChallengeCard("🎯 Challenge", "Find the energy state n = 5.", ACCENT_ALT), 0, 1)
+        challenge_cards.addWidget(ChallengeCard("🧠 What am I seeing?", "Click a button and the app explains the graph.", "#7dd3fc"), 1, 0, 1, 2)
+
+        challenge_wrap = QWidget()
+        challenge_wrap.setLayout(challenge_cards)
+        challenge_wrap.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        challenge_row = QHBoxLayout()
+        challenge_row.addStretch()
+        challenge_row.addWidget(challenge_wrap, stretch=1)
+        challenge_row.addStretch()
+        layout.addLayout(challenge_row)
 
         about_btn = QPushButton("About QuantumLab")
+        about_btn.setObjectName("navButton")
         about_btn.clicked.connect(on_open_about)
         about_row = QHBoxLayout()
         about_row.addStretch()
         about_row.addWidget(about_btn)
         about_row.addStretch()
         layout.addLayout(about_row)
+
+        layout.addStretch()
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(self.scroll)
+        self.scroll.setWidget(content)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -399,26 +513,54 @@ class AboutScreen(QWidget):
         self.background.lower()
         self.background.resize(self.size())
 
-        layout = QVBoxLayout(self)
+        self.scroll = QScrollArea(self)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scroll.setStyleSheet("QScrollArea { background: transparent; border: none; } QScrollArea > QWidget { background: transparent; }")
+        self.scroll.viewport().setAutoFillBackground(False)
+        self.scroll.viewport().setStyleSheet("background: transparent;")
+
+        content = QWidget()
+        content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        content.setStyleSheet("background: transparent;")
+        content.setAttribute(Qt.WA_StyledBackground, False)
+
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(30, 30, 30, 30)
         layout.setSpacing(14)
         layout.setAlignment(Qt.AlignTop)
 
-        back_btn = QPushButton("← Back to QuantumLab")
-        back_btn.setObjectName("backButton")
+        back_btn = QPushButton("← QuantumLab")
+        back_btn.setObjectName("navButton")
         back_btn.clicked.connect(on_back)
-        back_row = QHBoxLayout()
-        back_row.addWidget(back_btn)
-        back_row.addStretch()
-        layout.addLayout(back_row)
 
-        title = QLabel("⚛  QuantumLab")
+        title = QLabel("About")
         title_font = QFont()
-        title_font.setPointSize(24)
+        title_font.setPointSize(23)
         title_font.setBold(True)
         title.setFont(title_font)
-        title.setStyleSheet(f"color: {ACCENT};")
-        layout.addWidget(title)
+        title.setStyleSheet("color: #f8fbff; letter-spacing: 0.02em;")
+        title.setAlignment(Qt.AlignCenter)
+
+        home_btn = QPushButton("🏠 Home")
+        home_btn.setObjectName("navButton")
+        home_btn.clicked.connect(on_back)
+
+        back_row = QHBoxLayout()
+        back_row.addWidget(back_btn)
+        back_row.addWidget(title, stretch=1)
+        back_row.addWidget(home_btn)
+        layout.addLayout(back_row)
+
+        lab_title = QLabel("⚛  QUANTUMLAB")
+        lab_title_font = QFont()
+        lab_title_font.setPointSize(24)
+        lab_title_font.setBold(True)
+        lab_title.setFont(lab_title_font)
+        lab_title.setStyleSheet(f"color: {ACCENT};")
+        layout.addWidget(lab_title)
 
         description = QLabel(
             "An interactive visualization toolkit for exploring fundamental "
@@ -445,6 +587,11 @@ class AboutScreen(QWidget):
 
         layout.addStretch()
 
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(self.scroll)
+        self.scroll.setWidget(content)
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, "background"):
@@ -455,6 +602,7 @@ class QuantumLabWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QuantumLab — Interactive Quantum Mechanics Lab")
+        self.resize(1200, 760)
         self.resize(1300, 820)
         self.setStyleSheet(_shell_stylesheet())
 
