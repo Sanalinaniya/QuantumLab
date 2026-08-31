@@ -135,7 +135,6 @@ class TunnelingLabView(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-        outer.addWidget(self._build_header())
 
         self.fig = Figure(figsize=(11.5, 10.2), facecolor=BG)
         self.fig.text(0.07, 0.978, 'INTERACTIVE PHYSICS LAB', color=CYAN,
@@ -163,24 +162,6 @@ class TunnelingLabView(QWidget):
         self.redraw_static()
         self.ani = FuncAnimation(self.fig, self.animate, interval=40,
                                  blit=False, cache_frame_data=False)
-
-    def _build_header(self):
-        row = QHBoxLayout()
-        row.setContentsMargins(14, 10, 14, 10)
-        back_btn = QPushButton("← Back to QuantumLab")
-        back_btn.clicked.connect(self._on_back_clicked)
-        title = QLabel("Quantum Tunneling Lab")
-        f = QFont()
-        f.setPointSize(13)
-        f.setBold(True)
-        title.setFont(f)
-        row.addWidget(back_btn)
-        row.addStretch()
-        row.addWidget(title)
-        row.addStretch()
-        w = QWidget()
-        w.setLayout(row)
-        return w
 
     def _on_back_clicked(self):
         if hasattr(self, 'ani'):

@@ -28,6 +28,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QLabel, QSlider, QCheckBox, QPushButton, QGroupBox,
+    QSplitter,
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
@@ -131,7 +132,7 @@ class WavePacketView(QWidget):
 
         root.addWidget(self._build_title())
         root.addWidget(self._build_controls())
-        root.addLayout(self._build_main_row())
+        root.addWidget(self._build_main_row())
 
     def _stylesheet(self):
         return """
@@ -215,7 +216,7 @@ class WavePacketView(QWidget):
         self.reset_btn.clicked.connect(self._on_reset)
 
         self.time_label = QLabel(f"Time  t = {self.t:.2f}")
-        self.time_label.setStyleSheet("font-size: 15px; font-weight: 800; color: #0f172a;")
+        self.time_label.setStyleSheet("font-size: 15px; font-weight: 800; color: #f8fafc;")
 
         play_row.addWidget(self.play_btn)
         play_row.addWidget(self.pause_btn)
@@ -261,26 +262,31 @@ class WavePacketView(QWidget):
         return value_label, row
 
     def _build_main_row(self):
-        row = QHBoxLayout()
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setChildrenCollapsible(False)
 
         self.canvas = MplCanvas(width=8, height=5)
-        row.addWidget(self.canvas, stretch=3)
+        self.canvas.setMinimumWidth(420)
 
-        side_col = QVBoxLayout()
+        side_widget = QWidget()
+        side_col = QVBoxLayout(side_widget)
         info_panel = self._build_info_panel()
-        info_panel.setMinimumWidth(230)
+        info_panel.setMinimumWidth(220)
         side_col.addWidget(info_panel, stretch=0)
 
         trend_box = QGroupBox("Uncertainty over time")
         trend_layout = QVBoxLayout(trend_box)
         self.trend_canvas = MplCanvas(width=3, height=2.4)
-        self.trend_canvas.setMinimumHeight(240)
+        self.trend_canvas.setMinimumHeight(200)
         trend_layout.addWidget(self.trend_canvas)
         side_col.addWidget(trend_box, stretch=1)
 
-        row.addLayout(side_col, stretch=1)
-
-        return row
+        splitter.addWidget(self.canvas)
+        splitter.addWidget(side_widget)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([900, 320])
+        return splitter
 
     def _build_info_panel(self):
         box = QGroupBox("Quantum State")
@@ -289,7 +295,7 @@ class WavePacketView(QWidget):
 
         def value_label():
             lbl = QLabel("—")
-            lbl.setStyleSheet("font-weight: 800; font-size: 14px; color: #0f172a;")
+            lbl.setStyleSheet("font-weight: 800; font-size: 14px; color: #f8fafc;")
             return lbl
 
         rows = ["⟨x⟩", "⟨p⟩", "Δx", "Δp", "Δx · Δp", "ħ/2"]
@@ -484,7 +490,7 @@ class WavePacketView(QWidget):
         ax.set_ylim(-y_headroom, y_headroom)
         ax.set_xlabel("x", fontweight="bold")
         ax.set_ylabel("amplitude / probability density", fontweight="bold")
-        ax.set_title("Free-particle Gaussian wave packet", fontsize=13, fontweight="bold", color="#334155")
+        ax.set_title("Free-particle Gaussian wave packet", fontsize=13, fontweight="bold", color="#e2e8f0")
         if self.show_real or self.show_imag or self.show_prob:
             ax.legend(loc="upper right", fontsize=9, framealpha=0.92,
                        fancybox=True, edgecolor="#e2e8f0")
